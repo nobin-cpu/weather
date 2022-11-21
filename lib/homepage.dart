@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
 import 'package:jiffy/jiffy.dart';
-import 'package:weather/clippath.dart';
+
 
 class Homepage extends StatefulWidget {
   const Homepage({Key? key}) : super(key: key);
@@ -14,13 +14,13 @@ class Homepage extends StatefulWidget {
 }
 
 class _HomepageState extends State<Homepage> {
-  var list = const [
-    'images/morningbg.jpg',
-    'images/noonbg.jpg',
-    'images/evening.jpg',
-    'images/night.jpg'
-  ];
-  final daysSinceEpoch = DateTime.now().second / 1;
+  // var list = const [
+  //   'images/morningbg.jpg',
+  //   'images/noonbg.jpg',
+  //   'images/evening.jpg',
+  //   'images/night.jpg'
+  // ];
+  // final daysSinceEpoch = DateTime.now().second / 1;
 
   Position? position;
   Map<String, dynamic>? weatherMap;
@@ -33,9 +33,6 @@ class _HomepageState extends State<Homepage> {
     // Test if location services are enabled.
     serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      // Location services are not enabled don't continue
-      // accessing the position and request users of the
-      // App to enable the location services.
       return Future.error('Location services are disabled.');
     }
 
@@ -43,11 +40,6 @@ class _HomepageState extends State<Homepage> {
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        // Permissions are denied, next time you could try
-        // requesting permissions again (this is also where
-        // Android's shouldShowRequestPermissionRationale
-        // returned true. According to Android guidelines
-        // your App should show an explanatory UI now.
         return Future.error('Location permissions are denied');
       }
     }
@@ -88,7 +80,7 @@ class _HomepageState extends State<Homepage> {
   var lon;
   @override
   void initState() {
-    // TODO: implement initState
+    
     _determinePosition();
     super.initState();
   }
@@ -96,59 +88,123 @@ class _HomepageState extends State<Homepage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 0, 29, 44),
       body: Container(
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(),
         child: SingleChildScrollView(
-          child: Column(children: [
-            
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            scrollDirection: Axis.vertical,
+            child: Column(
               children: [
-                Card(
-                  child: Image.network(
-                      height: MediaQuery.of(context).size.height * .1,
-                      weatherMap!["weather"][0]["main"] == "Clear"
-                          ? "images/sun2.png"
-                          : weatherMap!["weather"][0]["main"] == "rainy"
-                              ? "images/rainy.png"
-                              : "images/cloudy.png"),
-                ),
                 Container(
-                  margin: const EdgeInsets.only(left: 20.0, right: 10.0),
-                  height: 40,
-                  width: 2,
-                  color: Colors.black,
-                ),
-                Card(
-                  elevation: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      children: [
-                        Text(
-                            "${Jiffy(DateTime.now()).format("MMM do yyyy,   h:mm: a")} "),
-                        Text("${weatherMap!["name"]}"),
-                      ],
+                  height: MediaQuery.of(context).size.height * .60,
+                  width: MediaQuery.of(context).size.width,
+                  margin: EdgeInsets.only(left: 10, right: 10),
+                  decoration: BoxDecoration(
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(22),
+                          bottomRight: Radius.circular(22)),
+                      gradient: LinearGradient(
+                          colors: [
+                            Color.fromARGB(255, 78, 146, 255),
+                            Color.fromARGB(255, 238, 2, 255)
+                          ],
+                          stops: [
+                            0.3,
+                            0.86
+                          ],
+                          begin: Alignment.topCenter,
+                          end: Alignment.bottomCenter)),
+                  child: Column(children: [
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Image.network(
+                              height: MediaQuery.of(context).size.height * .1,
+                              weatherMap!["weather"][0]["main"] == "Clear"
+                                  ? "images/sun2.png"
+                                  : weatherMap!["weather"][0]["main"] == "rainy"
+                                      ? "images/rainy.png"
+                                      : "images/cloudy.png"),
+                          Container(
+                            margin:
+                                const EdgeInsets.only(left: 20.0, right: 10.0),
+                            height: 40,
+                            width: 2,
+                            color: Colors.black,
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Column(
+                              children: [
+                                Text(
+                                  "${Jiffy(DateTime.now()).format("MMM do yyyy,   h:mm: a")} ",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                Text(
+                                  "${weatherMap!["name"]}",
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                  ),
-                )
-              ],
-            ),
-            SizedBox(
-              height: 20,
-            ),
-            Column(
-              children: [
-                Text("Temp:${weatherMap!["main"]["temp"]}."),
-                Text("Feels like:${weatherMap!["main"]["feels_like"]}."),
-                Text("${weatherMap!["weather"][0]["main"]}"),
-                Text("Humidity: ,pressure:"),
-                Text(
-                    "Sunrise ${Jiffy(DateTime.fromMillisecondsSinceEpoch(weatherMap!["sys"]["sunrise"] * 1000)).format("h:mm:a")} ,Sunset:${Jiffy(DateTime.fromMillisecondsSinceEpoch(weatherMap!["sys"]["sunset"] * 1000)).format("h:mm:a")} "),
+                    SizedBox(
+                      height: 20,
+                    ),
+                    Align(
+                      heightFactor: MediaQuery.of(context).size.height * .003,
+                      alignment: Alignment.center,
+                      child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              "Temp:${weatherMap!["main"]["temp"]}.",
+                              style: TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                              "Feels like:${weatherMap!["main"]["feels_like"]}.",
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(
+                              height: 10,
+                            ),
+                            Text(
+                              "Sky:${weatherMap!["weather"][0]["main"]}",
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                                "Humidity:${forecastMap!["list"][0]["main"]["humidity"]} ,pressure:${forecastMap!["list"][0]["main"]["pressure"]}",
+                                style: TextStyle(color: Colors.white)),
+                            SizedBox(
+                              height: 5,
+                            ),
+                            Text(
+                                "Sunrise ${Jiffy(DateTime.fromMillisecondsSinceEpoch(weatherMap!["sys"]["sunrise"] * 1000)).format("h:mm:a")} ,Sunset:${Jiffy(DateTime.fromMillisecondsSinceEpoch(weatherMap!["sys"]["sunset"] * 1000)).format("h:mm:a")} ",
+                                style: TextStyle(color: Colors.white)),
+                          ]),
+                    ),
+                  ]),
+                ),
                 Align(
-                  heightFactor: MediaQuery.of(context).size.height / 210,
+                  heightFactor: MediaQuery.of(context).size.height * .002,
                   alignment: Alignment.bottomCenter,
                   child: SizedBox(
                     height: 150,
@@ -157,31 +213,44 @@ class _HomepageState extends State<Homepage> {
                         shrinkWrap: true,
                         itemCount: forecastMap!.length,
                         itemBuilder: (context, index) {
-                          return Container(
-                            margin: EdgeInsets.only(right: 8),
-                            color: Colors.grey,
-                            width: 80,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                    "${Jiffy("${forecastMap!["list"][index]["dt_txt"]}").format("EEE h:mm")}"),
-                                Text(
-                                    "${forecastMap!["list"][index]["main"]["temp_min"]}"),
-                                Text(
-                                    "${forecastMap!["list"][index]["main"]["temp_max"]}"),
-                                Text(
-                                    "${forecastMap!["list"][index]["weather"][0]["descriptipn"]}")
-                              ],
+                          return Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Container(
+                              margin: EdgeInsets.only(right: 2),
+                              color: Color.fromARGB(255, 46, 0, 17),
+                              width: 80,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    "${Jiffy("${forecastMap!["list"][index]["dt_txt"]}").format("EEE h:mm")}",
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                  Text(
+                                      "${forecastMap!["list"][index]["main"]["temp_min"]}",
+                                      style: TextStyle(color: Colors.white)),
+                                  Text(
+                                      "${forecastMap!["list"][index]["main"]["temp_max"]}",
+                                      style: TextStyle(color: Colors.white)),
+                                  Align(
+                                    alignment: Alignment.bottomCenter,
+                                    child: Padding(
+                                      padding: EdgeInsets.all(8.0),
+                                      child: Text(
+                                          "${forecastMap!["list"][index]["weather"][0]["description"]}",
+                                          style:
+                                              TextStyle(color: Colors.white)),
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
                           );
                         }),
                   ),
                 )
               ],
-            )
-          ]),
-        ),
+            )),
       ),
     );
   }
